@@ -6,7 +6,7 @@ mod lexer {
         tokens: Vec<Token>,
         input: String,
         position: i64,
-        length: i64,
+        length: usize,
     }
 
     pub enum TokenType {
@@ -38,9 +38,9 @@ mod lexer {
         pub fn new(input: String) -> Self {
             Lexer {
                 tokens: Vec::<Token>::new(),
-                input,
+                input: input.clone(),
                 position: 0,
-                length: 0,
+                length: input.len(),
             }
         }
 
