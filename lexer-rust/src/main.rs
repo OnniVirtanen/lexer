@@ -1,12 +1,16 @@
 mod lexer {
 
     use core::fmt;
-    
+
     pub struct Lexer {
         tokens: Vec<Token>,
         input: String,
         position: i64,
         length: usize,
+    }
+
+    pub trait Tokenizer {
+        fn tokenize(&self) -> Vec<Token>;
     }
 
     pub enum TokenType {
@@ -34,17 +38,8 @@ mod lexer {
         pub lexeme: String,
     }
 
-    impl Lexer {
-        pub fn new(input: String) -> Self {
-            Lexer {
-                tokens: Vec::<Token>::new(),
-                input: input.clone(),
-                position: 0,
-                length: input.len(),
-            }
-        }
-
-        pub fn tokenize(&self) -> Vec<Token> {
+    impl Tokenizer for Lexer {
+        fn tokenize(&self) -> Vec<Token> {
             let mut vec = Vec::<Token>::new();
 
             let _token = Token {
@@ -56,6 +51,17 @@ mod lexer {
 
             return vec;
         }
+    }
+
+    impl Lexer {
+        pub fn new(input: String) -> Self {
+            Lexer {
+                tokens: Vec::<Token>::new(),
+                input: input.clone(),
+                position: 0,
+                length: input.len(),
+            }
+        }
 
         pub fn debug(&self) {
             println!("input: {}", self.input);
@@ -65,6 +71,8 @@ mod lexer {
     }
     
 }
+
+use crate::lexer::Tokenizer;
 
 fn main() {
     let input = String::from("x = 1;");
