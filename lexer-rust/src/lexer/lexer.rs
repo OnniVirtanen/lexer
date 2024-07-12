@@ -4,7 +4,7 @@ use crate::lexer::token::Token;
 pub struct Lexer {
     tokens: Vec<Token>,
     input: String,
-    position: i64,
+    position: usize,
     length: usize,
 }
 
@@ -15,14 +15,14 @@ pub trait Tokenizer {
 impl Tokenizer for Lexer {
     fn tokenize(&self) -> Vec<Token> {
         let mut vec = Vec::<Token>::new();
+        let mut token = self.get_next_token();
 
-        let _token = Token {
-            token_type: TokenType::Identifier,
-            lexeme: String::from("x"),
-        };
+        while token.token_type != TokenType::EOF {
+            vec.push(token);
+            token = self.get_next_token();
+        }
 
-        vec.push(_token);
-
+        vec.push(token);
         return vec;
     }
 }
@@ -37,7 +37,20 @@ impl Lexer {
         }
     }
 
-    pub fn debug(&self) {
+    fn get_next_token(&self) -> Token {
+        if self.position >= self.length {
+            return Token {
+                token_type: TokenType::EOF,
+                lexeme: String::from(""),
+            };
+        }
+        return Token {
+            token_type: TokenType::Illegal,
+            lexeme: String::from(""),
+        };
+    }
+
+    fn debug(&self) {
         println!("input: {}", self.input);
         println!("position: {}", self.position);
         println!("length: {}", self.length);

@@ -1,3 +1,4 @@
+#[derive(PartialEq)]
 pub enum TokenType {
     // Identifier
     Identifier,
@@ -52,6 +53,9 @@ pub enum TokenType {
     RightCurlyBracket,
     Period,
     Colon,
+    // Other
+    EOF,
+    Illegal
 }
 
 pub struct Token {

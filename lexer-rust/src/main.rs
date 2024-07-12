@@ -5,7 +5,6 @@ mod lexer;
 fn main() {
     let input = String::from("x = 1;");
     let lexer = Lexer::new(input);
-    lexer.debug();
     let tokens = lexer.tokenize();
     for token in tokens {
         println!("token value: {}", token.lexeme);
