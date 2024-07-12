@@ -8,7 +8,6 @@ fn main() {
     lexer.debug();
     let tokens = lexer.tokenize();
     for token in tokens {
-        println!("token type: {}", token.token_type);
         println!("token value: {}", token.lexeme);
     }
 }
