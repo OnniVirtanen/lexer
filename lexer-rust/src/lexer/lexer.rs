@@ -1,6 +1,8 @@
 use crate::lexer::token::TokenType;
 use crate::lexer::token::Token;
 
+use std::mem;
+
 pub struct Lexer {
     tokens: Vec<Token>,
     input: String,
@@ -9,21 +11,20 @@ pub struct Lexer {
 }
 
 pub trait Tokenizer {
-    fn tokenize(&self) -> Vec<Token>;
+    fn tokenize(&mut self) -> Vec<Token>;
 }
 
 impl Tokenizer for Lexer {
-    fn tokenize(&self) -> Vec<Token> {
-        let mut vec = Vec::<Token>::new();
+    fn tokenize(&mut self) -> Vec<Token> {
         let mut token = self.get_next_token();
 
         while token.token_type != TokenType::EOF {
-            vec.push(token);
+            self.tokens.push(token);
             token = self.get_next_token();
         }
 
-        vec.push(token);
-        return vec;
+        self.tokens.push(token);
+        return mem::take(&mut self.tokens)
     }
 }
 
