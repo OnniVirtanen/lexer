@@ -38,17 +38,36 @@ impl Lexer {
         }
     }
 
-    fn get_next_token(&self) -> Token {
+    fn get_next_token(&mut self) -> Token {
         if self.position >= self.length {
             return Token {
                 token_type: TokenType::EOF,
                 lexeme: String::from(""),
             };
         }
+
+        let current_char = self.input.chars().nth(self.position).expect("Index out of bounds");
+
+        println!("The character at index {} is: {}", self.position, current_char);
+        self.position += 1;
+
+        match current_char {
+            ' ' | '\t' | '\n' | '\r' => {
+                self.skip_whitespace();
+            }
+            _ => {
+                println!("{} is not a whitespace character", current_char);
+            }
+        }
+
         return Token {
             token_type: TokenType::Illegal,
             lexeme: String::from(""),
         };
+    }
+
+    fn skip_whitespace(&self) {
+        println!("skipping white space");
     }
 
     fn debug(&self) {
