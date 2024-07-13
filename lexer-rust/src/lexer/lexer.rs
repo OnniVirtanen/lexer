@@ -41,38 +41,35 @@ impl Lexer {
 
     fn get_next_token(&mut self) -> Token {
         if self.position >= self.length {
-            return Token {
-                token_type: TokenType::EOF,
-                lexeme: String::from("EOF"),
-            };
+            return Token::new(TokenType::EOF, String::from("EOF"));
         }
 
         let current_char = self.input.chars().nth(self.position).expect("Index out of bounds");
 
-        if util::isWhitespace(current_char) {
+        if util::is_whitespace(current_char) {
             self.skip_whitespace();
             return self.get_next_token();
         }
-        if util::isBeginningOfString(current_char) {
+        if util::is_beginning_of_string(current_char) {
             return self.consume_string();
         }
-        if util::isBeginningOfChar(current_char) {
+        if util::is_beginning_of_char(current_char) {
             return self.consume_char();
         }
-        if util::isNumber(current_char) {
+        if util::is_number(current_char) {
             return self.consume_number();
         }
-        if util::isSeparator(current_char) {
+        if util::is_letter(current_char) {
+            return self.consume_letter();
+        }
+        if util::is_separator(current_char) {
             return self.consume_separator(current_char);
         }
-        if util::isOperator(current_char) {
+        if util::is_operator(current_char) {
             return self.consume_operator(current_char);
         }
-
-        return Token {
-            token_type: TokenType::Illegal,
-            lexeme: String::from("Illegal"),
-        };
+        
+        return Token::new(TokenType::Illegal, String::from("Illegal"));
     }
 
     fn skip_whitespace(&mut self) {
@@ -81,19 +78,21 @@ impl Lexer {
     
     fn consume_separator(&mut self, current_char: char) -> Token {
         self.position += 1;
-        match current_char {
-            ';' => Token::new(TokenType::Semicolon, String::from(current_char)),
-            ',' => Token::new(TokenType::Comma, String::from(current_char)),
-            '(' => Token::new(TokenType::Comma, String::from(current_char)),
-            ')' => Token::new(TokenType::Comma, String::from(current_char)),
-            '[' => Token::new(TokenType::Comma, String::from(current_char)),
-            ']' => Token::new(TokenType::Comma, String::from(current_char)),
-            '{' => Token::new(TokenType::Comma, String::from(current_char)),
-            '}' => Token::new(TokenType::Comma, String::from(current_char)),
-            '.' => Token::new(TokenType::Comma, String::from(current_char)),
-            ':' => Token::new(TokenType::Comma, String::from(current_char)),
+        let type_of_token = match current_char {
+            ';' => TokenType::Semicolon,
+            ',' => TokenType::Comma,
+            '(' => TokenType::LeftParenthesis,
+            ')' => TokenType::RightParenthesis,
+            '[' => TokenType::LeftBracket,
+            ']' => TokenType::RightBracket,
+            '{' => TokenType::LeftCurlyBracket,
+            '}' => TokenType::RightCurlyBracket,
+            '.' => TokenType::Period,
+            ':' => TokenType::Colon,
             _ => panic!("No such separator: {}", current_char),
-        }
+        };
+
+        return Token::new(type_of_token, String::from(current_char));
     }
 
     fn consume_operator(&mut self, current_char: char) -> Token {
@@ -101,47 +100,45 @@ impl Lexer {
 
         self.position += 1;
         let next_char = self.input.chars().nth(self.position).expect("Index out of bounds");
-        if util::isOperator(next_char) {
+        if util::is_operator(next_char) {
             operator.push_str(&String::from(next_char));
             self.position += 1;
         }
 
-        match operator.as_str() {
-            "+" => Token::new(TokenType::Addition, operator),
-            "-" => Token::new(TokenType::Subtraction, operator),
-            "*" => Token::new(TokenType::Multiplication, operator),
-            "/" => Token::new(TokenType::Division, operator),
-            "%" => Token::new(TokenType::Modulus, operator),
-            "&&" => Token::new(TokenType::LogicalAnd, operator),
-            "||" => Token::new(TokenType::LogicalOr, operator),
-            "!" => Token::new(TokenType::LogicalNot, operator),
-            "==" => Token::new(TokenType::EqualTo, operator),
-            "!=" => Token::new(TokenType::NotEqualTo, operator),
-            "<" => Token::new(TokenType::LessThan, operator),
-            ">" => Token::new(TokenType::GreaterThan, operator),
-            "<=" => Token::new(TokenType::LessThanOrEqualTo, operator),
-            ">=" => Token::new(TokenType::GreaterThanOrEqualTo, operator),
-            "=" => Token::new(TokenType::Assignment, operator),
-            "+=" => Token::new(TokenType::AddAndAssign, operator),
-            "-=" => Token::new(TokenType::SubtractAndAssign, operator),
-            "*=" => Token::new(TokenType::MultiplyAndAssign, operator),
-            "/=" => Token::new(TokenType::DivideAndAssign, operator),
-            "%=" => Token::new(TokenType::ModulusAndAssign, operator),
+        let type_of_token = match operator.as_str() {
+            "+" => TokenType::Addition,
+            "-" => TokenType::Subtraction,
+            "*" => TokenType::Multiplication,
+            "/" => TokenType::Division,
+            "%" => TokenType::Modulus,
+            "&&" => TokenType::LogicalAnd,
+            "||" => TokenType::LogicalOr,
+            "!" => TokenType::LogicalNot,
+            "==" => TokenType::EqualTo,
+            "!=" => TokenType::NotEqualTo,
+            "<" => TokenType::LessThan,
+            ">" => TokenType::GreaterThan,
+            "<=" => TokenType::LessThanOrEqualTo,
+            ">=" => TokenType::GreaterThanOrEqualTo,
+            "=" => TokenType::Assignment,
+            "+=" => TokenType::AddAndAssign,
+            "-=" => TokenType::SubtractAndAssign,
+            "*=" => TokenType::MultiplyAndAssign,
+            "/=" => TokenType::DivideAndAssign,
+            "%=" => TokenType::ModulusAndAssign,
             _ => panic!("No such operator: {}", operator),
-        }
+        };
+
+        return Token::new(type_of_token, operator);
     }
 
     fn consume_char(&mut self) -> Token {
         self.position += 1;
         let char = self.input.chars().nth(self.position).expect("Index out of bounds");
-        return Token {
-            token_type: TokenType::CharacterLiteral,
-            lexeme: String::from(char),
-        };
+        return Token::new(TokenType::CharacterLiteral, String::from(char));
     }
 
     fn consume_string(&mut self) -> Token {
-        let start_position = self.position;
         self.position += 1;
     
         let mut character = self.input.chars().nth(self.position).expect("Index out of bounds");
@@ -159,27 +156,74 @@ impl Lexer {
         }
     
         self.position += 1;
-    
-        return Token {
-            token_type: TokenType::StringLiteral,
-            lexeme: string,
-        }
+        return Token::new(TokenType::StringLiteral, string);
     }
 
     fn consume_number(&mut self) -> Token {
-        // todo
+        let mut is_float = false;
+
+        let mut character = self.input.chars().nth(self.position).expect("Index out of bounds");
+        let mut string = String::new();
+
+        while util::is_number(character) || character == '.' {
+            string.push(character);
+            if character == '.' {
+                is_float = true;
+            }
+            self.position += 1;
+
+            if self.position < self.input.len() {
+                character = self.input.chars().nth(self.position).expect("Index out of bounds");
+            } else {
+                panic!("Unexpected end of input");
+            }
+        }
+
+        let type_of_token = if is_float { TokenType::FloatingLiteral } else { TokenType::IntegerLiteral };
+
+        return Token::new(type_of_token, string);
     }
 
-    fn consume_illegal(&mut self) -> Token {
-        return Token {
-            token_type: TokenType::Illegal,
-            lexeme: String::from(""),
+    fn consume_letter(&mut self) -> Token {
+        // do logic to get the whole string
+        let mut character = self.input.chars().nth(self.position).expect("Index out of bounds");
+        let mut string = String::new();
+    
+        while !util::is_whitespace(character) || !util::is_separator(character) {
+            string.push(character);
+            self.position += 1;
+    
+            if self.position < self.input.len() {
+                character = self.input.chars().nth(self.position).expect("Index out of bounds");
+            } else {
+                panic!("Unexpected end of input");
+            }
+        }
+
+        if util::is_keyword(string.clone()) {
+            return self.consume_keyword(string);
+        }
+
+        return Token::new(TokenType::Identifier, string);
+    }
+
+    fn consume_keyword(&mut self, keyword: String) -> Token {
+        let type_of_token = match keyword.as_str() {
+            "if" => TokenType::If,
+            "else" => TokenType::Else,
+            "while" => TokenType::While,
+            "int" => TokenType::Int,
+            "float" => TokenType::Float,
+            "bool" => TokenType::Bool,
+            "char" => TokenType::Character,
+            "string" => TokenType::String,
+            "fun" => TokenType::Function,
+            "return" => TokenType::Return,
+            "void" => TokenType::Void,
+            _ => panic!("No such keyword: {}", keyword),
         };
+
+        return Token::new(type_of_token, keyword);
     }
 
-    fn debug(&self) {
-        println!("input: {}", self.input);
-        println!("position: {}", self.position);
-        println!("length: {}", self.length);
-    }
 }
