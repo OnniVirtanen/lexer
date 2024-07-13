@@ -188,7 +188,7 @@ impl Lexer {
         let mut character = self.input.chars().nth(self.position).expect("Index out of bounds");
         let mut string = String::new();
     
-        while !util::is_whitespace(character) || !util::is_separator(character) {
+        while !util::is_whitespace(character) && !util::is_separator(character) && (self.position < self.length) {
             string.push(character);
             self.position += 1;
     
