@@ -185,7 +185,6 @@ impl Lexer {
     }
 
     fn consume_letter(&mut self) -> Token {
-        // do logic to get the whole string
         let mut character = self.input.chars().nth(self.position).expect("Index out of bounds");
         let mut string = String::new();
     
