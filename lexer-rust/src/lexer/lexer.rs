@@ -203,6 +203,12 @@ impl Lexer {
         if util::is_keyword(string.clone()) {
             return self.consume_keyword(string);
         }
+        if string == "true" || string == "false" {
+            return Token::new(TokenType::BooleanLiteral, string);
+        }
+        if string == "null" {
+            return Token::new(TokenType::NullLiteral, string);
+        }
 
         return Token::new(TokenType::Identifier, string);
     }
