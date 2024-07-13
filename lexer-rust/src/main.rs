@@ -3,7 +3,7 @@ use crate::lexer::lexer::Lexer;
 mod lexer;
 
 fn main() {
-    let input = String::from("x = 1;");
+    let input = String::from("; += - \"hello\"  ,");
     let mut lexer = Lexer::new(input);
     let tokens = lexer.tokenize();
     for token in tokens {
