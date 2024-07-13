@@ -102,10 +102,12 @@ impl Lexer {
         let mut operator = String::from(current_char);
 
         self.position += 1;
-        let next_char = self.input.chars().nth(self.position).expect("Index out of bounds");
-        if util::is_operator(next_char) {
-            operator.push_str(&String::from(next_char));
-            self.position += 1;
+        if self.position < self.length {
+            let next_char = self.input.chars().nth(self.position).expect("Index out of bounds");
+            if util::is_operator(next_char) {
+                operator.push_str(&String::from(next_char));
+                self.position += 1;
+            }
         }
 
         let type_of_token = match operator.as_str() {
@@ -137,8 +139,9 @@ impl Lexer {
 
     fn consume_char(&mut self) -> Token {
         self.position += 1;
-        let char = self.input.chars().nth(self.position).expect("Index out of bounds");
-        return Token::new(TokenType::CharacterLiteral, String::from(char));
+        let character = self.input.chars().nth(self.position).expect("Index out of bounds");
+        self.position += 2;
+        return Token::new(TokenType::CharacterLiteral, String::from(character));
     }
 
     fn consume_string(&mut self) -> Token {
@@ -154,7 +157,7 @@ impl Lexer {
             if self.position < self.input.len() {
                 character = self.input.chars().nth(self.position).expect("Index out of bounds");
             } else {
-                panic!("Unexpected end of input");
+                break;
             }
         }
     
@@ -175,10 +178,10 @@ impl Lexer {
             }
             self.position += 1;
 
-            if self.position < self.input.len() {
+            if self.position < self.length {
                 character = self.input.chars().nth(self.position).expect("Index out of bounds");
             } else {
-                panic!("Unexpected end of input");
+                break;
             }
         }
 
@@ -188,20 +191,19 @@ impl Lexer {
     }
 
     fn consume_letter(&mut self) -> Token {
-        let mut character = self.input.chars().nth(self.position).expect("Index out of bounds");
         let mut string = String::new();
     
-        while !util::is_whitespace(character) && !util::is_separator(character) && (self.position < self.length) {
+        while self.position < self.input.len() {
+            let character = self.input.chars().nth(self.position).expect("Index out of bounds");
+    
+            if util::is_whitespace(character) || util::is_separator(character) {
+                break;
+            }
+    
             string.push(character);
             self.position += 1;
-    
-            if self.position < self.input.len() {
-                character = self.input.chars().nth(self.position).expect("Index out of bounds");
-            } else {
-                panic!("Unexpected end of input");
-            }
         }
-
+    
         if util::is_keyword(string.clone()) {
             return self.consume_keyword(string);
         }
@@ -211,9 +213,10 @@ impl Lexer {
         if string == "null" {
             return Token::new(TokenType::NullLiteral, string);
         }
-
-        return Token::new(TokenType::Identifier, string);
+    
+        Token::new(TokenType::Identifier, string)
     }
+    
 
     fn consume_keyword(&mut self, keyword: String) -> Token {
         let type_of_token = match keyword.as_str() {
