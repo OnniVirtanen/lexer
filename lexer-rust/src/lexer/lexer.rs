@@ -63,10 +63,10 @@ impl Lexer {
             return self.consume_letter();
         }
         if util::is_separator(current_char) {
-            return self.consume_separator(current_char);
+            return self.consume_separator();
         }
         if util::is_operator(current_char) {
-            return self.consume_operator(current_char);
+            return self.consume_operator();
         }
         
         return Token::new(TokenType::Illegal, String::from("Illegal"));
@@ -76,8 +76,10 @@ impl Lexer {
         self.position += 1;
     }
     
-    fn consume_separator(&mut self, current_char: char) -> Token {
+    fn consume_separator(&mut self) -> Token {
+        let current_char = self.input.chars().nth(self.position).expect("Index out of bounds");
         self.position += 1;
+
         let type_of_token = match current_char {
             ';' => TokenType::Semicolon,
             ',' => TokenType::Comma,
@@ -95,7 +97,8 @@ impl Lexer {
         return Token::new(type_of_token, String::from(current_char));
     }
 
-    fn consume_operator(&mut self, current_char: char) -> Token {
+    fn consume_operator(&mut self) -> Token {
+        let current_char = self.input.chars().nth(self.position).expect("Index out of bounds");
         let mut operator = String::from(current_char);
 
         self.position += 1;
